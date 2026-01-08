@@ -1,0 +1,24 @@
+# General
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+**/*.egg-info/
+
+# Node
+**/node_modules/
+**/dist/
+**/build/
+**/.next/
+**/.turbo/
+
+# Environment Variables
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # RAG Application
+  rag-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-document-chat
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persist vector store
+      - ./chroma_db:/app/chroma_db
+      # Persist uploads
+      - ./uploads:/app/uploads
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.1:8b
+      - EMBEDDING_MODEL=nomic-embed-text:latest
+      - VECTOR_STORE_PATH=/app/chroma_db
+      - CHUNK_SIZE=1000
+      - CHUNK_OVERLAP=200
+      - RETRIEVAL_K=2
+      - TEMPERATURE=0.1
+      - CONTEXT_WINDOW=2048
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+  # Ollama Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      # Persist Ollama models
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - rag-network
+    # GPU support (uncomment if you have NVIDIA GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
+    name: rag-ollama-data
+
+networks:
+  rag-network:
+    name: rag-network
+    driver: bridge
